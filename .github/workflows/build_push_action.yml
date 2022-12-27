@@ -31,22 +31,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
-          build-args: |
-            "REVISION=${{github.sha}}"
-            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
-          push: true
-          target: ci
-          file: ./Dockerfile
-          context: .
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: load
+      - name: Build a ci docker image
         uses: docker/build-push-action@v3
         with:
           tags: |
@@ -61,6 +46,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build release docker image
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.head_ref || github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.sha }}
+          build-args: |
+            "REVISION=${{github.sha}}"
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+          load: true
+          target: release
+          file: ./Dockerfile
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Display images
         run: docker images
 
@@ -68,3 +69,34 @@ jobs:
         env:
           CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
         run: docker-compose -f "docker-compose.ci.yml" run ci pytest
+
+      - name: Build and push CI
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
+          build-args: |
+            "REVISION=${{github.sha}}"
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+          push: true
+          target: ci
+          file: ./Dockerfile
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push Release
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.head_ref || github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.sha }}
+          build-args: |
+            "REVISION=${{github.sha}}"
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+          push: true
+          target: release
+          file: ./Dockerfile
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
