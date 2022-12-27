@@ -78,7 +78,7 @@ CMD ["/bin/sh"]
 
 FROM base-with-files as release
 
-COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+#COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
 # REVISION is a GIT_SHA_COMMIT that is passed in from the build command, mainly used to check what version of the image is running
 ARG REVISION
 ENV REVISION=${REVISION}
