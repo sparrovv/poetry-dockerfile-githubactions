@@ -35,18 +35,14 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           tags: sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           build-args: |
-            "REVISION=${GITHUB_SHA}"
+            "REVISION=${{github.sha}}"
             "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
-          cache-from: |
-            sparrovv/poetry-test-app:cache
-          push: false
-          load: true
+          push: true
           file: ./Dockerfile
           context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 #          cache-from: type=local,src=/tmp/.buildx-cache
 #          cache-to: type=local,dest=/tmp/.buildx-cache
 
