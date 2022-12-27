@@ -46,6 +46,21 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: load
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
+          build-args: |
+            "REVISION=${{github.sha}}"
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+          load: true
+          target: ci
+          file: ./Dockerfile
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Display images
         run: docker images
 
