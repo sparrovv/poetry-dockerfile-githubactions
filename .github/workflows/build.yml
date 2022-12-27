@@ -28,14 +28,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: pull
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-        run: |
-          CURRENT_BRANCH=main docker compose -f "docker-compose.ci.yml" pull ci || true
-          docker compose -f "docker-compose.ci.yml" pull ci || true
-          docker compose -f "docker-compose.ci.yml" pull release || true
-
       - name: Display images
         run: docker images
 
