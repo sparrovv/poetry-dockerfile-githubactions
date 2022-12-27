@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:1.3
+# this ^^ line is important as it enables support for --mount=type=cache
 ARG PYTHON_VERSION=3.10-slim-bullseye
 ARG POETRY_VERSION=1.2.2
 
