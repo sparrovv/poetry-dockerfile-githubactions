@@ -31,12 +31,12 @@ jobs:
 
       - name: docker pull base
         run: |
-          docker compose pull base || true
+          docker compose -f "docker-compose.ci.yml" pull base || true
 
       - name: docker build base
         run: |
-          docker compose build base
-          docker compose push base
+          docker compose -f "docker-compose.ci.yml" build base
+          docker compose -f "docker-compose.ci.yml" push base
 
       - name: Display images
         run: docker images
