@@ -58,18 +58,19 @@ jobs:
           CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
         run: docker-compose -f "docker-compose.ci.yml" run ci pytest
 
-#      - uses: whoan/docker-build-with-cache-action@v5
-#        env:
-#          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-#        with:
-#          username: sparrovv
-#          password: "${{ secrets.GITHUB_TOKEN }}"
-#          registry: ghcr.io
-#          compose_file: docker-compose.ci.yml
-#          image_name: "ghcr.io/sparrovv/poetry-test-app"
-#          image_tag: ci-${{ github.head_ref || github.ref_name }}
-#          pull_image_and_stages: true
-#          push_image_and_stages: true
+      - uses: whoan/docker-build-with-cache-action@v5
+        env:
+          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
+        with:
+          username: sparrovv
+          password: "${{ secrets.GITHUB_TOKEN }}"
+          registry: ghcr.io
+          compose_file: docker-compose.ci.yml
+          image_name: "ghcr.io/sparrovv/poetry-test-app"
+          image_tag: ci-${{ github.head_ref || github.ref_name }}
+          pull_image_and_stages: true
+          build_extra_args: '{"--build-arg": ["REVISION=${GITHUB_SHA}", "CURRENT_BRANCH=${CURRENT_BRANCH}"]}'
+          push_image_and_stages: true
 
 #      - name: release images
 #        env:
