@@ -28,13 +28,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: pull
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-        run: |
-          CURRENT_BRANCH=main docker-compose -f "docker-compose.ci.yml" pull ci || true
-          docker-compose -f "docker-compose.ci.yml" pull ci || true
-          docker-compose -f "docker-compose.ci.yml" pull release || true
+#      - name: pull
+#        env:
+#          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
+#        run: |
+#          CURRENT_BRANCH=main docker-compose -f "docker-compose.ci.yml" pull ci || true
+#          docker-compose -f "docker-compose.ci.yml" pull ci || true
+#          docker-compose -f "docker-compose.ci.yml" pull release || true
 
       - uses: whoan/docker-build-with-cache-action@v5
         env:
@@ -43,7 +43,12 @@ jobs:
           username: sparrovv
           password: "${{ secrets.GITHUB_TOKEN }}"
           registry: ghcr.io
-          compose_file: docker-compose.ci.yml
+#          compose_file: docker-compose.ci.yml
+          image_name: "ghcr.io/sparrovv/poetry-test-app"
+          image_tag: ci-${{ github.head_ref || github.ref_name }}
+          pull_image_and_stages: true
+          push_image_and_stages: false
+          build_extra_args: '{"--build-arg": ["REVISION=${GITHUB_SHA}", "CURRENT_BRANCH=main"]}'
 
       - name: Display images
         run: docker images
@@ -53,18 +58,31 @@ jobs:
           CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
         run: docker-compose -f "docker-compose.ci.yml" run ci pytest
 
-      - name: release images
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-          IMAGE_NAME: "ghcr.io/sparrovv/poetry-test-app"
-        run: |
-          docker-compose -f "docker-compose.ci.yml" push ci
+#      - uses: whoan/docker-build-with-cache-action@v5
+#        env:
+#          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
+#        with:
+#          username: sparrovv
+#          password: "${{ secrets.GITHUB_TOKEN }}"
+#          registry: ghcr.io
+#          compose_file: docker-compose.ci.yml
+#          image_name: "ghcr.io/sparrovv/poetry-test-app"
+#          image_tag: ci-${{ github.head_ref || github.ref_name }}
+#          pull_image_and_stages: true
+#          push_image_and_stages: true
 
-          docker tag $IMAGE_NAME:ci-$CURRENT_BRANCH $IMAGE_NAME:ci-${{ github.sha }}
-          docker push $IMAGE_NAME:ci-${{ github.sha }}
-
-          docker-compose -f "docker-compose.ci.yml" build release
-          docker-compose -f "docker-compose.ci.yml" push release
-
-          docker tag $IMAGE_NAME:release $IMAGE_NAME:release-${{ github.sha }}
-          docker push $IMAGE_NAME:release-${{ github.sha }}
+#      - name: release images
+#        env:
+#          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
+#          IMAGE_NAME: "ghcr.io/sparrovv/poetry-test-app"
+#        run: |
+#          docker-compose -f "docker-compose.ci.yml" push ci
+#
+#          docker tag $IMAGE_NAME:ci-$CURRENT_BRANCH $IMAGE_NAME:ci-${{ github.sha }}
+#          docker push $IMAGE_NAME:ci-${{ github.sha }}
+#
+#          docker-compose -f "docker-compose.ci.yml" build release
+#          docker-compose -f "docker-compose.ci.yml" push release
+#
+#          docker tag $IMAGE_NAME:release $IMAGE_NAME:release-${{ github.sha }}
+#          docker push $IMAGE_NAME:release-${{ github.sha }}
