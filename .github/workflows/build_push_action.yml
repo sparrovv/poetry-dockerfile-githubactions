@@ -40,12 +40,11 @@ jobs:
             "REVISION=${{github.sha}}"
             "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
           push: true
+          target: ci
           file: ./Dockerfile
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
-#          cache-from: type=local,src=/tmp/.buildx-cache
-#          cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Display images
         run: docker images
