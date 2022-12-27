@@ -54,21 +54,24 @@ FROM python as base
 RUN addgroup --system app \
     && adduser --system --ingroup app app
 
-COPY --chown=app:app . $APP_PATH
-
 WORKDIR $APP_PATH
 USER app
 
+CMD ["/bin/sh"]
+
+FROM base as base-with-files
+
+COPY --chown=app:app . $APP_PATH
 RUN chmod +x entrypoint
 RUN mkdir -p static
 
-FROM base as ci
+FROM base-with-files as ci
 
 COPY --from=builder-dev --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
 
 CMD ["/bin/sh"]
 
-FROM base as release
+FROM base-with-files as release
 
 COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
 # REVISION is a GIT_SHA_COMMIT that is passed in from the build command, mainly used to check what version of the image is running

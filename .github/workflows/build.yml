@@ -12,6 +12,7 @@ env:
   REGISTRY: ghcr.io
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
+  CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
 
 jobs:
   build:
@@ -28,23 +29,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: docker pull base
+        run: |
+          docker compose pull base || true
+
+      - name: docker build base
+        run: |
+          docker compose build base
+          docker compose push base
+
       - name: Display images
         run: docker images
 
       - name: build images
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
         run:  |
           docker compose -f "docker-compose.ci.yml" build ci
 
       - name: run tests
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
         run: docker compose -f "docker-compose.ci.yml" run ci pytest
 
       - name: release images
         env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
           IMAGE_NAME: "ghcr.io/sparrovv/poetry-test-app"
         run: |
           docker compose -f "docker-compose.ci.yml" push ci
