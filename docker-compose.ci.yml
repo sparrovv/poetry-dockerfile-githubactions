@@ -2,7 +2,8 @@ version: '3.7'
 
 services:
   ci:
-    image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+#    image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+    image: ghcr.io/sparrovv/poetry-test-app:ci-main
     env_file:
       - .env.local
     build:
