@@ -60,6 +60,8 @@ WORKDIR $APP_PATH
 
 USER app
 
+COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+
 CMD ["/bin/sh"]
 
 FROM base as base-with-files
