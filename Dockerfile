@@ -54,7 +54,10 @@ FROM python as base
 RUN addgroup --system app \
     && adduser --system --ingroup app app
 
+RUN mkdir -p $APP_PATH
+RUN chown -R app:app $APP_PATH
 WORKDIR $APP_PATH
+
 USER app
 
 CMD ["/bin/sh"]
