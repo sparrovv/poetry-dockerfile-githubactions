@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  ci:
+    image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+    env_file:
+      - .env.local
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: ci
+      args:
+        REVISION: ${GITHUB_SHA:?err}
+      cache_from:
+        - ghcr.io/sparrovv/poetry-test-app:ci-main
+        - ghcr.io/sparrovv/poetry-test-app:release
+    ports:
+      - "8000:5000"
+
+  release:
+    image: ghcr.io/sparrovv/poetry-test-app:release
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: release
+      args:
+        REVISION: ${GITHUB_SHA:?err}
+      cache_from:
+        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+        - ghcr.io/sparrovv/poetry-test-app:release
+        - ghcr.io/sparrovv/poetry-test-app:ci-main
+        - ghcr.io/sparrovv/poetry-test-app:release-${GITHUB_SHA:?err}
+    env_file:
+      - .env.local

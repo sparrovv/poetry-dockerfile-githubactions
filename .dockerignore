@@ -1,0 +1,6 @@
+.env.local
+.env
+logs
+tmp
+.idea
+.pytest_cache

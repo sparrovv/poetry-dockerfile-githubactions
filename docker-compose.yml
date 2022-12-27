@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  poetry-test-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ci
+      args:
+        - GIT_COMMIT_SHA=1
+    image: poetry-test-app
+    container_name: poetry-test-app
+    volumes:
+      - .:/app:z
+    env_file:
+      - .env.local
+    ports:
+      - "8000:8000"
+    command: /app/start
+
+#networks:
+#  default:
+#    name:
