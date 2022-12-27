@@ -37,11 +37,18 @@ jobs:
           tags: sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           build-args: |
             "REVISION=${GITHUB_SHA}"
             "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
           cache-from: |
             sparrovv/poetry-test-app:cache
+          push: true
+          load: true
+          file: ./Dockerfile
+          context: .
+#          cache-from: type=local,src=/tmp/.buildx-cache
+#          cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Display images
         run: docker images
