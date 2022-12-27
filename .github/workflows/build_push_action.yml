@@ -43,7 +43,7 @@ jobs:
             "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
           cache-from: |
             sparrovv/poetry-test-app:cache
-          push: true
+          push: false
           load: true
           file: ./Dockerfile
           context: .
