@@ -11,25 +11,27 @@ services:
       target: ci
       args:
         REVISION: ${GITHUB_SHA:?err}
-      cache_from:
-        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
-        - ghcr.io/sparrovv/poetry-test-app:ci-main
-        - ghcr.io/sparrovv/poetry-test-app:release
+      cache_to: "type=gha,mode=max"
+      cache_from: "type=gha"
+#        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+#        - ghcr.io/sparrovv/poetry-test-app:ci-main
+#        - ghcr.io/sparrovv/poetry-test-app:release
     ports:
       - "8000:5000"
 
-#  release:
-#    image: ghcr.io/sparrovv/poetry-test-app:release
-#    build:
-#      dockerfile: Dockerfile
-#      context: .
-#      target: release
-#      args:
-#        REVISION: ${GITHUB_SHA:?err}
-#      cache_from:
+  release:
+    image: ghcr.io/sparrovv/poetry-test-app:release
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: release
+      args:
+        REVISION: ${GITHUB_SHA:?err}
+      cache_to: "type=gha,mode=max"
+      cache_from: "type=gha"
 #        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
 #        - ghcr.io/sparrovv/poetry-test-app:release
 #        - ghcr.io/sparrovv/poetry-test-app:ci-main
 #        - ghcr.io/sparrovv/poetry-test-app:release-${GITHUB_SHA:?err}
-#    env_file:
-#      - .env.local
+    env_file:
+      - .env.local
