@@ -40,6 +40,9 @@ jobs:
         env:
           CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
         with:
+          username: sparrovv
+          password: "${{ secrets.GITHUB_TOKEN }}"
+          registry: ghcr.io
           compose_file: docker-compose.ci.yml
 
       - name: Display images
