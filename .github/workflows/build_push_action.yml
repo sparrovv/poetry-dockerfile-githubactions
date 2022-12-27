@@ -36,8 +36,10 @@ jobs:
         with:
           tags: sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.MYTOKEN }}
-          build-args: '{"--build-arg": ["REVISION=${GITHUB_SHA}", "CURRENT_BRANCH=main"]}'
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          build-args: |
+            "REVISION=${GITHUB_SHA}"
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
           cache-from: |
             sparrovv/poetry-test-app:cache
 
