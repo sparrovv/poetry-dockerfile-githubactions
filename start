@@ -4,6 +4,4 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-cd /app
-
-python --version
+exec gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080 web.main:app

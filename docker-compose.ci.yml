@@ -12,8 +12,6 @@ services:
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-main
-    ports:
-      - "8000:5000"
 
   ci:
     image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
@@ -28,8 +26,9 @@ services:
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-main
+    command: ["/app/start"]
     ports:
-      - "8000:5000"
+      - "8080:8080"
 
   release:
     image: ghcr.io/sparrovv/poetry-test-app:release

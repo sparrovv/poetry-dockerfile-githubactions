@@ -42,7 +42,7 @@ RUN curl -sSL https://install.python-poetry.org | python -
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 
-RUN /opt/poetry/bin/poetry install --only=main
+RUN /opt/poetry/bin/poetry install --only=main --no-root
 
 FROM builder as builder-dev
 
