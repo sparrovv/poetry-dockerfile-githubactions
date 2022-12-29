@@ -25,7 +25,7 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 RUN apt-get update && apt-get install --no-install-recommends -y \
   libpq-dev
 
-FROM python as builder
+FROM python as builder-base
 
 # Install packates requried for building python dependencies
 RUN apt-get install --no-install-recommends -y \
@@ -44,7 +44,7 @@ COPY ./poetry.lock ./pyproject.toml ./
 
 RUN /opt/poetry/bin/poetry install --only=main --no-root
 
-FROM builder as builder-dev
+FROM builder-base as builder-dev
 
 # Install dev dependencies
 RUN /opt/poetry/bin/poetry install --only=dev
@@ -56,32 +56,27 @@ RUN addgroup --system app \
 
 RUN mkdir -p $APP_PATH
 RUN chown -R app:app $APP_PATH
-WORKDIR $APP_PATH
 
+WORKDIR $APP_PATH
 USER app
 
-COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+COPY --chown=app:app web web
+COPY --chown=app:app scripts scripts
+
+RUN chmod +x scripts/entrypoint
 
 CMD ["/bin/sh"]
 
-FROM base as base-with-files
-
-COPY --chown=app:app web $APP_PATH
-COPY --chown=app:app scripts $APP_PATH
-
-RUN chmod +x entrypoint
-RUN mkdir -p static
-
-FROM base-with-files as ci
+FROM base as ci
 
 COPY --from=builder-dev --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
 COPY --chown=app:app tests $APP_PATH
 
 CMD ["/bin/sh"]
 
-FROM base-with-files as release
+FROM base as release
 
-#COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=builder-base --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
 # REVISION is a GIT_SHA_COMMIT that is passed in from the build command, mainly used to check what version of the image is running
 ARG REVISION
 ENV REVISION=${REVISION}

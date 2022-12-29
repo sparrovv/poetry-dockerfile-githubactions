@@ -16,7 +16,7 @@ env:
   CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  build_combined:
+  build:
     runs-on: ubuntu-latest
     name: build-with-base
     steps:
@@ -53,26 +53,22 @@ jobs:
           docker images
           docker history -H ghcr.io/sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
 
-#      - name: build images
-#        run:  |
-#          docker compose -f "docker-compose.ci.yml" build ci
-
       - name: run tests
         run: docker compose -f "docker-compose.ci.yml" run ci pytest
 
-      - name: push the ci docker image
-        uses: docker/build-push-action@v3
-        with:
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.head_ref || github.ref_name }}
-          build-args: |
-            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
-          push: true
-          target: base
-          file: ./Dockerfile
-          context: .
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#      - name: push the ci docker image
+#        uses: docker/build-push-action@v3
+#        with:
+#          tags: |
+#            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.head_ref || github.ref_name }}
+#          build-args: |
+#            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+#          push: true
+#          target: base
+#          file: ./Dockerfile
+#          context: .
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
 
       - name: Build and push the release docker image
         uses: docker/build-push-action@v3
