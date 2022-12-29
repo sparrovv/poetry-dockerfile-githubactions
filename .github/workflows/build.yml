@@ -63,8 +63,8 @@ jobs:
           target: ci
           file: ./Dockerfile
           context: .
-#          cache-from: type=local
-#          cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Display ci images and history
         run: |
@@ -76,7 +76,7 @@ jobs:
 #          docker compose -f "docker-compose.ci.yml" build ci
 
       - name: run tests
-        run: docker compose -f "docker-compose.ci.yml" run ci pytest
+        run: docker compose -f "docker-compose.ci.yml" run --no-build ci pytest
 
   build:
     runs-on: ubuntu-latest
