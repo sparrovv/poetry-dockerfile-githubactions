@@ -33,24 +33,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build the base docker image
-        uses: docker/build-push-action@v3
-        with:
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/poetry-test-app:base-${{ github.head_ref || github.ref_name }}
-          build-args: |
-            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
-          load: true
-          target: base
-          file: ./Dockerfile
-          context: .
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Display images and history
-        run: |
-          docker images
-          docker history -H ghcr.io/sparrovv/poetry-test-app:base-${{ github.head_ref || github.ref_name }}
 
       - name: Build the ci - image
         uses: docker/build-push-action@v3
@@ -76,7 +58,36 @@ jobs:
 #          docker compose -f "docker-compose.ci.yml" build ci
 
       - name: run tests
-        run: docker compose -f "docker-compose.ci.yml" run --no-build ci pytest
+        run: docker compose -f "docker-compose.ci.yml" run ci pytest
+
+      - name: push the ci docker image
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.head_ref || github.ref_name }}
+          build-args: |
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+          push: true
+          target: base
+          file: ./Dockerfile
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push the release docker image
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.sha }}
+          build-args: |
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+            "REVISION=${{ github.sha }}"
+          push: true
+          target: base
+          file: ./Dockerfile
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build:
     runs-on: ubuntu-latest
