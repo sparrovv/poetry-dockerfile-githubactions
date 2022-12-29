@@ -63,7 +63,7 @@ jobs:
           target: ci
           file: ./Dockerfile
           context: .
-#          cache-from: type=gha
+          cache-from: type=local
 #          cache-to: type=gha,mode=max
 
       - name: Display ci images and history
