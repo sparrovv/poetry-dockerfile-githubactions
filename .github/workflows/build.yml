@@ -12,6 +12,7 @@ env:
   REGISTRY: ghcr.io
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
+  BUILDKIT_INLINE_CACHE: 1
   CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
 
 jobs:
