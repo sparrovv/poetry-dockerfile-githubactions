@@ -16,7 +16,7 @@ env:
   CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  build:
+  build_with_cache:
     runs-on: ubuntu-latest
     name: build-with-base
     steps:
