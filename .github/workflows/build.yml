@@ -17,7 +17,7 @@ env:
 jobs:
   build_combined:
     runs-on: ubuntu-latest
-    name: build
+    name: build-with-base
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -82,6 +82,9 @@ jobs:
       - name: Display images
         run: docker images
 
+      - name: Display history
+        run: docker history -H ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH}
+
       - name: build images
         run:  |
           docker compose -f "docker-compose.ci.yml" build ci
@@ -93,6 +96,7 @@ jobs:
         env:
           IMAGE_NAME: "ghcr.io/sparrovv/poetry-test-app"
         run: |
+          docker compose -f "docker-compose.ci.yml" push base
           docker compose -f "docker-compose.ci.yml" push ci
 
           docker tag $IMAGE_NAME:ci-$CURRENT_BRANCH $IMAGE_NAME:ci-${{ github.sha }}
