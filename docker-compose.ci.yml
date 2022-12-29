@@ -9,6 +9,8 @@ services:
       dockerfile: Dockerfile
       context: .
       target: base
+      cache_to:
+        - "type=inline"
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-main
@@ -23,6 +25,8 @@ services:
       target: ci
       args:
         REVISION: ${GITHUB_SHA:?err}
+      cache_to:
+        - "type=inline"
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-main
