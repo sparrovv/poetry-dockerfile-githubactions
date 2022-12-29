@@ -66,13 +66,16 @@ CMD ["/bin/sh"]
 
 FROM base as base-with-files
 
-COPY --chown=app:app . $APP_PATH
+COPY --chown=app:app web $APP_PATH
+COPY --chown=app:app scripts $APP_PATH
+
 RUN chmod +x entrypoint
 RUN mkdir -p static
 
 FROM base-with-files as ci
 
 COPY --from=builder-dev --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+COPY --chown=app:app tests $APP_PATH
 
 CMD ["/bin/sh"]
 
@@ -83,5 +86,5 @@ FROM base-with-files as release
 ARG REVISION
 ENV REVISION=${REVISION}
 
-ENTRYPOINT ["/app/entrypoint"]
-CMD ["/app/start"]
+ENTRYPOINT ["/app/scripts/entrypoint"]
+CMD ["/app/scripts/start"]
