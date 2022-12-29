@@ -51,9 +51,28 @@ jobs:
           docker images
           docker history -H ghcr.io/sparrovv/poetry-test-app:base-${{ github.head_ref || github.ref_name }}
 
-      - name: build images
-        run:  |
-          docker compose -f "docker-compose.ci.yml" build ci
+      - name: Build the ci - image
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
+          build-args: |
+            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
+          load: true
+          target: ci
+          file: ./Dockerfile
+          context: .
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+
+      - name: Display ci images and history
+        run: |
+          docker images
+          docker history -H ghcr.io/sparrovv/poetry-test-app:base-${{ github.head_ref || github.ref_name }}
+
+#      - name: build images
+#        run:  |
+#          docker compose -f "docker-compose.ci.yml" build ci
 
       - name: run tests
         run: docker compose -f "docker-compose.ci.yml" run ci pytest
