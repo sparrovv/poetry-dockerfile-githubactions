@@ -26,6 +26,7 @@ services:
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-main
+        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
     command: ["/app/start"]
     ports:
       - "8080:8080"
