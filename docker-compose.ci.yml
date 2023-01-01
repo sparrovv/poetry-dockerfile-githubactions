@@ -11,6 +11,8 @@ services:
       target: base
       cache_to:
         - type=gha,mode=max
+      args:
+        BUILDKIT_INLINE_CACHE: 1
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - type=gha
@@ -24,6 +26,7 @@ services:
       context: .
       target: ci
       args:
+        BUILDKIT_INLINE_CACHE: 1
         REVISION: ${GITHUB_SHA:?err}
       cache_to:
         - type=gha,mode=max
@@ -42,6 +45,7 @@ services:
       context: .
       target: release
       args:
+        BUILDKIT_INLINE_CACHE: 1
         REVISION: ${GITHUB_SHA:?err}
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
