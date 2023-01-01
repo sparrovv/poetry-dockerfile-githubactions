@@ -99,14 +99,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: docker pull base
-        run: |
-          docker compose -f "docker-compose.ci.yml" pull base || true
-
-#      - name: docker build base
+#      - name: docker pull base
 #        run: |
-#          docker compose -f "docker-compose.ci.yml" build base
-#          docker compose -f "docker-compose.ci.yml" push base
+#          docker compose -f "docker-compose.ci.yml" pull base || true
+
+      - name: docker build base
+        run: |
+          docker compose -f "docker-compose.ci.yml" build base
 
       - name: Display images
         run: docker images

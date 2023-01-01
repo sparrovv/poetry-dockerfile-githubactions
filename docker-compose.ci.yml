@@ -10,10 +10,10 @@ services:
       context: .
       target: base
       cache_to:
-        - "type=inline,mode=max"
+        - type=gha,mode=max
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
-        - ghcr.io/sparrovv/poetry-test-app:base-main
+        - type=gha
 
   ci:
     image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
@@ -26,11 +26,11 @@ services:
       args:
         REVISION: ${GITHUB_SHA:?err}
       cache_to:
-        - "type=inline,mode=max"
+        - type=gha,mode=max
       cache_from:
         - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
-        - ghcr.io/sparrovv/poetry-test-app:base-main
+        - type=gha
     command: ["/app/start"]
     ports:
       - "8080:8080"
