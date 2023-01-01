@@ -47,5 +47,6 @@ services:
         - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:base-main
+        - type=gha
     env_file:
       - .env.local
