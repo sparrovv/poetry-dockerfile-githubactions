@@ -17,7 +17,6 @@ env:
 
 jobs:
   docker_build_push:
-    if: true == false
     runs-on: ubuntu-latest
     name: build-with-base
     steps:

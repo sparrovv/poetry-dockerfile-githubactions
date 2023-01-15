@@ -37,7 +37,8 @@ services:
     command: [ "/app/start" ]
     ports:
       - "8080:8080"
-      -
+
+
   citest:
     image: ghcr.io/sparrovv/poetry-test-app:ci
     env_file:
