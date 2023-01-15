@@ -50,7 +50,7 @@ jobs:
       - name: Display ci images and history
         run: |
           docker images
-          docker history -H ghcr.io/sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
+          docker history -H ghcr.io/sparrovv/poetry-test-app:ci
 
       - name: run tests
         run: docker compose -f "docker-compose.ci.yml" run citest pytest
