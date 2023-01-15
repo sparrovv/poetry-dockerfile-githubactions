@@ -13,10 +13,10 @@ env:
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
   BUILDKIT_INLINE_CACHE: 1
-  CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
+  CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  build_with_cache:
+  docker_build_push:
     if: true == false
     runs-on: ubuntu-latest
     name: build-with-base
@@ -34,12 +34,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Build the ci - image
         uses: docker/build-push-action@v3
         with:
           tags: |
-            ghcr.io/${{ github.repository_owner }}/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/poetry-test-app:ci
           build-args: |
             "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
           load: true
@@ -55,21 +54,7 @@ jobs:
           docker history -H ghcr.io/sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}
 
       - name: run tests
-        run: docker compose -f "docker-compose.ci.yml" run ci pytest
-
-#      - name: push the ci docker image
-#        uses: docker/build-push-action@v3
-#        with:
-#          tags: |
-#            ghcr.io/${{ github.repository_owner }}/poetry-test-app:release-${{ github.head_ref || github.ref_name }}
-#          build-args: |
-#            "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
-#          push: true
-#          target: base
-#          file: ./Dockerfile
-#          context: .
-#          cache-from: type=gha
-#          cache-to: type=gha,mode=max
+        run: docker compose -f "docker-compose.ci.yml" run citest pytest
 
       - name: Build and push the release docker image
         uses: docker/build-push-action@v3
@@ -80,13 +65,13 @@ jobs:
             "CURRENT_BRANCH=${{ github.head_ref || github.ref_name }}"
             "REVISION=${{ github.sha }}"
           push: true
-          target: base
+          target: release
           file: ./Dockerfile
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  build:
+  build_with_docker_compose:
     runs-on: ubuntu-latest
     name: build
     steps:
@@ -100,22 +85,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: docker pull base
-#        run: |
-#          docker compose -f "docker-compose.ci.yml" pull base || true
-
-#      - name: docker build base
-#        run: |
-#          docker compose -f "docker-compose.ci.yml" build base
-#
-#      - name: Display images
-#        run: docker images
-#
-#      - name: Display history
-#        run: docker history -H ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH}
-#
       - name: build images
-        run:  |
+        run: |
           docker compose -f "docker-compose.ci.yml" build ci
 
       - name: Display ci history
@@ -136,6 +107,3 @@ jobs:
 
           docker compose -f "docker-compose.ci.yml" build release
           docker compose -f "docker-compose.ci.yml" push release
-
-          docker tag $IMAGE_NAME:release $IMAGE_NAME:release-${{ github.sha }}
-          docker push $IMAGE_NAME:release-${{ github.sha }}

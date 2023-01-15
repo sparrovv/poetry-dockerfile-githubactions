@@ -1,15 +1,17 @@
 # Poetry Dockerfile setup for CI/CD and production
 
-This repository is a CI/CD template for a python project using Poetry and Docker (Python and poetry could be replaced with any other language and package manager, as the approaches are language agnostic).
+This repository is a CI/CD template for a python project using Poetry and Docker (Python and poetry could be replaced
+with any other language and package manager, as the approaches are language agnostic).
 
 It focuses on two distinct approaches how to set up the CI/CD pipeline:
 
 - Using a multi-stage dockerfile to build the image and run tests through docker compose
-- Use open sourced github actions to run the tests and build the image
+- Use open docker github actions to run the tests and build the image
 
 The overall goal is have to **quick** and **reliable** CI/CD pipeline, that's simple to set up and maintain.
 
-In most applications the steps are:
+As in most applications the steps are:
+
 - checkout the code
 - setup the environment
 - install the dependencies
@@ -20,19 +22,22 @@ In this repository I will focus mainly on the application pipeline, but the same
 
 ## Approaches
 
-### Open sourced github actions
+### Docker build github actions
 
 Benefits:
+
 - Easy to set up
 - Ready to use actions (poetry, python, cache). The most popular ones have a lot of options and are well maintained
 - Performance through caching
 
 Downsides:
+
 - Hard to reproduce locally and debug
-- Differs from the production environment. The actual Dockerfile might be different from the one used in the CI/CD pipeline
+- Differs from the production environment. The actual Dockerfile might be different from the one used in the CI/CD
+  pipeline
 - Updating the actions might break the pipeline
 
-### Multi-stage dockerfile
+### Multi-stage dockerfile with docker compose
 
 Benefits:
 
