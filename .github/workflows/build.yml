@@ -53,7 +53,7 @@ jobs:
           docker history -H ghcr.io/sparrovv/poetry-test-app:ci
 
       - name: run tests
-        run: docker compose -f "docker-compose.ci.yml" run citest pytest
+        run: docker compose -f "docker-compose.ci.yml" run ci pytest
 
       - name: Build and push the release docker image
         uses: docker/build-push-action@v3
@@ -69,6 +69,39 @@ jobs:
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+
+  build_with_docker_compose_and_cache:
+    runs-on: ubuntu-latest
+    name: build-with-docker-compose-and-cache
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v2
+
+      - name: Build the ci image
+        run: |
+          docker buildx create --use --driver=docker-container
+          docker buildx bake -f ./docker-compose.ci2.yml --set *.cache-to="type=gha,mode=max" --set *.cache-from="type=gha" --load
+
+      - name: Display ci images and history
+        run: |
+          docker images
+          docker history -H ghcr.io/sparrovv/poetry-test-app:ci
+
+      - name: run tests
+        run: docker compose -f "docker-compose.ci2.yml" run ci pytest
+
+      - name: Build and push the release docker image
+        run: |
+          docker compose -f "docker-compose.ci2.yml" push ci
+
+          docker tag $IMAGE_NAME:ci-$CURRENT_BRANCH $IMAGE_NAME:ci-${{ github.sha }}
+          docker push $IMAGE_NAME:ci-${{ github.sha }}
+
+
 
   build_with_docker_compose:
     runs-on: ubuntu-latest

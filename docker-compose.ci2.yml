@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  ci:
+    image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+    env_file:
+      - .env.local
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: ci
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        REVISION: ${GITHUB_SHA:?err}
+    command: [ "/app/start" ]
+    ports:
+      - "8080:8080"
+
+  release:
+    image: ghcr.io/sparrovv/poetry-test-app:release
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: release
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        REVISION: ${GITHUB_SHA:?err}
+    env_file:
+      - .env.local

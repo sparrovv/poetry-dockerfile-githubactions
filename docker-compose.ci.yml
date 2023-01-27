@@ -38,15 +38,6 @@ services:
     ports:
       - "8080:8080"
 
-
-  citest:
-    image: ghcr.io/sparrovv/poetry-test-app:ci
-    env_file:
-      - .env.local
-    build:
-      target: ci
-    command: [ "/app/start" ]
-
   release:
     image: ghcr.io/sparrovv/poetry-test-app:release
     build:
