@@ -89,7 +89,7 @@ jobs:
       - name: Display ci images and history
         run: |
           docker images
-          docker history -H ghcr.io/sparrovv/poetry-test-app:ci
+#          docker history -H ghcr.io/sparrovv/poetry-test-app:ci
 
       - name: run tests
         run: docker compose -f "docker-compose.ci2.yml" run ci pytest
