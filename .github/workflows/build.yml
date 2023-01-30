@@ -117,13 +117,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: build and push builder stage for cache
+        run: |
+          docker compose -f "docker-compose.ci.yml" build builder
+          docker compose -f "docker-compose.ci.yml" push builder
+
       - name: build images
         run: |
           docker compose -f "docker-compose.ci.yml" build ci
-
-      - name: push builder stage for cache
-        run: |
-          docker compose -f "docker-compose.ci.yml" push builder
 
       - name: Display ci history
         run: |
