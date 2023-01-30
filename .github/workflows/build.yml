@@ -19,6 +19,7 @@ jobs:
   docker_build_push:
     runs-on: ubuntu-latest
     name: docker-build-push
+    if: false
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -74,6 +75,7 @@ jobs:
   build_with_docker_compose_and_cache:
     runs-on: ubuntu-latest
     name: build-with-docker-compose-and-cache
+    if: false
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
