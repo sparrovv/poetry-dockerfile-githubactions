@@ -121,6 +121,10 @@ jobs:
         run: |
           docker compose -f "docker-compose.ci.yml" build ci
 
+      - name: push builder stage for cache
+        run: |
+          docker compose -f "docker-compose.ci.yml" push builder
+
       - name: Display ci history
         run: |
           docker history -H ghcr.io/sparrovv/poetry-test-app:ci-${{ github.head_ref || github.ref_name }}

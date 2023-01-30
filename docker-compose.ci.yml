@@ -1,14 +1,14 @@
 version: '3.7'
 
 services:
-  base:
-    image: ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
+  builder:
+    image: ghcr.io/sparrovv/poetry-test-app:builder-${CURRENT_BRANCH:?err}
     env_file:
       - .env.local
     build:
       dockerfile: Dockerfile
       context: .
-      target: base
+      target: builder-dev
       cache_to:
         - type=gha,mode=max
       args:
