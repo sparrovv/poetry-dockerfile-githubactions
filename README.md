@@ -3,10 +3,7 @@
 This repository is a CI/CD template for a python project using Poetry and Docker (Python and poetry could be replaced
 with any other language and package manager, as the approaches are language agnostic).
 
-It focuses on two distinct approaches how to set up the CI/CD pipeline:
-
-- Using a multi-stage dockerfile to build the image and run tests through docker compose
-- Use open docker github actions to run the tests and build the image
+It shows an approach for building a docker image for the application and running the tests through docker compose.
 
 The overall goal is have to **quick** and **reliable** CI/CD pipeline, that's simple to set up and maintain.
 
@@ -20,24 +17,7 @@ As in most applications the steps are:
 
 In this repository I will focus mainly on the application pipeline, but the same approach can be used for the libraries.
 
-## Approaches
-
-### Docker build github actions
-
-Benefits:
-
-- Easy to set up
-- Ready to use actions (poetry, python, cache). The most popular ones have a lot of options and are well maintained
-- Performance through caching
-
-Downsides:
-
-- Hard to reproduce locally and debug
-- Differs from the production environment. The actual Dockerfile might be different from the one used in the CI/CD
-  pipeline
-- Updating the actions might break the pipeline
-
-### Multi-stage dockerfile with docker compose
+## Multi-stage dockerfile with docker compose
 
 Benefits:
 
@@ -48,8 +28,25 @@ Benefits:
 
 Downsides:
 
-- Native github actions seems to be faster (GH cache for dependencies is faster than docker cache)
 - Not the most straightforward way to set up if someone doesn't have experience with docker
+
+### Caching
+
+To keep the build time low, the dependencies are cached in the docker image, and published to github registry.
+
+The docker image has builder stage, where the dependencies are installed, and the ci and application stages, where the dependencies are copied from the builder stage.
+
+The main reason for that is to keep the production image size small.
+
+### docker stages
+
+- builder - used to install the dependencies and cache them
+- ci - used to run the tests, scripts, linting and other checks 
+- release - used in production - only the application / library code is copied. 
+
+### Docker compose
+
+To simplify the setup on the CI/CD pipeline, the docker compose is used to run the tests. This way the same setup can be checked and debugged locally as well.
 
 ## App
 
