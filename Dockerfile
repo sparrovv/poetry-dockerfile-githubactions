@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:1.3
+# this ^^ line is important as it enables support for --mount=type=cache
 ARG PYTHON_VERSION=3.10-slim-bullseye
 ARG POETRY_VERSION=1.2.2
 
@@ -23,7 +25,7 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 RUN apt-get update && apt-get install --no-install-recommends -y \
   libpq-dev
 
-FROM python as builder
+FROM python as builder-base
 
 # Install packates requried for building python dependencies
 RUN apt-get install --no-install-recommends -y \
@@ -40,9 +42,9 @@ RUN curl -sSL https://install.python-poetry.org | python -
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 
-RUN /opt/poetry/bin/poetry install --only=main
+RUN /opt/poetry/bin/poetry install --only=main --no-root
 
-FROM builder as builder-dev
+FROM builder-base as builder-dev
 
 # Install dev dependencies
 RUN /opt/poetry/bin/poetry install --only=dev
@@ -52,26 +54,32 @@ FROM python as base
 RUN addgroup --system app \
     && adduser --system --ingroup app app
 
-COPY --chown=app:app . $APP_PATH
+RUN mkdir -p $APP_PATH
+RUN chown -R app:app $APP_PATH
 
 WORKDIR $APP_PATH
 USER app
 
-RUN chmod +x entrypoint
-RUN mkdir -p static
+COPY --chown=app:app web web
+COPY --chown=app:app scripts scripts
+
+RUN chmod +x scripts/entrypoint
+
+CMD ["/bin/sh"]
 
 FROM base as ci
 
 COPY --from=builder-dev --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+COPY --chown=app:app tests $APP_PATH
 
 CMD ["/bin/sh"]
 
 FROM base as release
 
-COPY --from=builder --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=builder-base --chown=app:app $PYSETUP_PATH $PYSETUP_PATH
 # REVISION is a GIT_SHA_COMMIT that is passed in from the build command, mainly used to check what version of the image is running
 ARG REVISION
 ENV REVISION=${REVISION}
 
-ENTRYPOINT ["/app/entrypoint"]
-CMD ["/app/start"]
+ENTRYPOINT ["/app/scripts/entrypoint"]
+CMD ["/app/scripts/start"]

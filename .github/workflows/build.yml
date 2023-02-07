@@ -2,16 +2,19 @@ name: build
 
 on:
   workflow_dispatch:
-#  pull_request:
-#    branches:
-#      - main
-#  push:
-#    branches:
-#      - main
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 env:
   REGISTRY: ghcr.io
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
+  BUILDKIT_INLINE_CACHE: 1
+  CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
+  IMAGE_NAME: "ghcr.io/sparrovv/poetry-test-app"
 
 jobs:
   build:
@@ -28,40 +31,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: pull
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
+      - name: build and push builder stage for cache
         run: |
-          CURRENT_BRANCH=main docker-compose -f "docker-compose.ci.yml" pull ci || true
-          docker-compose -f "docker-compose.ci.yml" pull ci || true
-          docker-compose -f "docker-compose.ci.yml" pull release || true
+          docker compose -f "docker-compose.ci.yml" build builder
+          docker compose -f "docker-compose.ci.yml" push builder
 
-      - name: Display images
-        run: docker images
-
-      - name: build images
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-        run:  |
-          docker-compose -f "docker-compose.ci.yml" build ci
+      - name: build ci image
+        run: |
+          docker compose -f "docker-compose.ci.yml" build ci
 
       - name: run tests
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-        run: docker-compose -f "docker-compose.ci.yml" run ci pytest
+        run: docker compose -f "docker-compose.ci.yml" run ci pytest
 
-      - name: release images
-        env:
-          CURRENT_BRANCH:  ${{ github.head_ref || github.ref_name }}
-          IMAGE_NAME: "ghcr.io/sparrovv/poetry-test-app"
+      - name: release ci image
         run: |
-          docker-compose -f "docker-compose.ci.yml" push ci
+          docker compose -f "docker-compose.ci.yml" push ci
 
           docker tag $IMAGE_NAME:ci-$CURRENT_BRANCH $IMAGE_NAME:ci-${{ github.sha }}
           docker push $IMAGE_NAME:ci-${{ github.sha }}
 
-          docker-compose -f "docker-compose.ci.yml" build release
-          docker-compose -f "docker-compose.ci.yml" push release
-
-          docker tag $IMAGE_NAME:release $IMAGE_NAME:release-${{ github.sha }}
-          docker push $IMAGE_NAME:release-${{ github.sha }}
+      - name: build and publish release image
+        run: |
+          docker compose -f "docker-compose.ci.yml" build release
+          docker compose -f "docker-compose.ci.yml" push release

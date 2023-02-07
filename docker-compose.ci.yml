@@ -1,9 +1,23 @@
 version: '3.7'
 
 services:
+  builder:
+    image: ghcr.io/sparrovv/poetry-test-app:builder-${CURRENT_BRANCH:?err}
+    env_file:
+      - .env.local
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: builder-dev
+      cache_to:
+        - type=gha,mode=max
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+      cache_from:
+        - ghcr.io/sparrovv/poetry-test-app:builder-${CURRENT_BRANCH:?err}
+
   ci:
-#    image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
-    image: ghcr.io/sparrovv/poetry-test-app:ci-main
+    image: ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
     env_file:
       - .env.local
     build:
@@ -11,12 +25,17 @@ services:
       context: .
       target: ci
       args:
+        BUILDKIT_INLINE_CACHE: 1
         REVISION: ${GITHUB_SHA:?err}
+      cache_to:
+        - type=gha,mode=max
       cache_from:
-        - ghcr.io/sparrovv/poetry-test-app:ci-main
-        - ghcr.io/sparrovv/poetry-test-app:release
+        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+        - ghcr.io/sparrovv/poetry-test-app:base-${CURRENT_BRANCH:?err}
+        - type=gha
+    command: [ "/app/start" ]
     ports:
-      - "8000:5000"
+      - "8080:8080"
 
   release:
     image: ghcr.io/sparrovv/poetry-test-app:release
@@ -25,11 +44,12 @@ services:
       context: .
       target: release
       args:
+        BUILDKIT_INLINE_CACHE: 1
         REVISION: ${GITHUB_SHA:?err}
       cache_from:
-        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
         - ghcr.io/sparrovv/poetry-test-app:release
-        - ghcr.io/sparrovv/poetry-test-app:ci-main
-        - ghcr.io/sparrovv/poetry-test-app:release-${GITHUB_SHA:?err}
+        - ghcr.io/sparrovv/poetry-test-app:ci-${CURRENT_BRANCH:?err}
+        - ghcr.io/sparrovv/poetry-test-app:base-main
+        - type=gha
     env_file:
       - .env.local

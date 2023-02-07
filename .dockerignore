@@ -4,3 +4,7 @@ logs
 tmp
 .idea
 .pytest_cache
+.github
+Dockerfile
+docker-compose.yml
+docker-compose.ci.yml
